@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The winning team</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: vinnerlag, sportslig og selvsikker, men raskt å fylle inn
+   IDEA: resultattavla og pokalen i salgsrommet
+   PICTURE: skjemaet + gullfelt med salgstallet, pallplasser i tabellen
+   COLOUR and TYPE: svart + gull #ffc629, mørk gull til søyler; Archivo Black + Inter
+   LAYOUT: skjema venstre, gullfelt høyre; graf, ledertavle og liste under */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0c0b08);--ink:light-dark(#111008,#f5f1e6);--mut:light-dark(#5e5a4e,#a8a292);--line:light-dark(#e8e4d8,#2a2720);--gold:#ffc629;--gd:light-dark(#d99a00,#ffc629);--mf:light-dark(#ffc629,#1a1608);--mi:light-dark(#111008,#ffc629);--card:light-dark(#f6f6f6,#151515);--bar:light-dark(#cfcfcf,#3a3a3a)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,.big{font-family:"Space Grotesk",system-ui,sans-serif;font-weight:700;letter-spacing:-.01em}
+h1,.big{font-family:"Archivo Black","Space Grotesk",system-ui,sans-serif;font-weight:400}
+h1{display:flex;align-items:center;gap:12px}h1 svg{flex:none;width:clamp(36px,5vw,50px);height:auto}
+.top>.band:first-child{border-top:6px solid var(--gd)}
+.top>.band:last-child{border-top:6px solid var(--ink)}
+.pod{display:inline-flex;align-items:center;gap:8px}.pod b{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;font-size:12px;color:#111008}
+tr.lead td{background:light-dark(#fff6d6,#1f1a0a)}
+h1{font-size:clamp(32px,5vw,48px);line-height:1.05;margin:0 0 6px;text-wrap:balance}
+h2{font-size:22px;margin:0 0 14px}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px)}
+.wrap{max-width:1240px;margin:0 auto}
+.top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);border-bottom:1px solid var(--line)}
+.top>.band:last-child{background:var(--mf);color:var(--mi)}
+.sub{color:var(--mut);margin:0 0 24px}
+form{display:grid;gap:16px;max-width:460px}
+label{display:block;font-weight:600;font-size:14px;margin-bottom:6px}
+.hint{font-weight:400;color:var(--mut)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+input{width:100%;font:inherit;font-size:16px;padding:11px 12px;min-height:46px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+input:focus-visible,button:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
+button{font:inherit;font-weight:600;min-height:44px;padding:10px 18px;border-radius:10px;border:1.5px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer}
+button.ghost{background:transparent;color:var(--ink)}
+button.small{min-height:36px;padding:6px 12px;font-size:14px}
+.acts{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.msg{font-size:14px;color:var(--mut);min-height:1.4em}
+.msg.err{color:light-dark(#9b1c1c,#ff9b9b);background:light-dark(#fdecec,#2a1212);border:1px solid light-dark(#f3b4b4,#5a2424);border-radius:10px;padding:10px 14px;max-width:460px;font-weight:500}
+.kick{font-size:14px;font-weight:600;margin:0 0 4px;opacity:.75}
+.big{font-size:clamp(44px,7vw,76px);line-height:1;margin:0}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;margin-top:28px}
+.stat .v{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:28px;line-height:1.1;white-space:nowrap}
+.stat .l{font-size:13px;opacity:.75}
+.per{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:22px}
+.per button{background:transparent;color:inherit;border-color:currentColor;min-height:36px;padding:6px 14px;font-size:14px}
+.per button[aria-pressed=true]{background:var(--mi);color:var(--mf)}
+.fig{position:relative;min-height:260px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.leg{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--mut);margin-top:10px}
+.leg i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+th{font-size:13px;color:var(--mut);font-weight:600}
+th:first-child,td:first-child{text-align:left}
+td:last-child{text-align:right}
+.empty{padding:28px;text-align:center;color:var(--mut);background:var(--card);border-radius:12px}
+.head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap}
+.foot{font-size:13px;color:var(--mut)}
+input[type=number]{-moz-appearance:textfield;appearance:textfield}
+input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.who{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 18px}
+.who button{display:inline-flex;align-items:center;gap:7px;background:color-mix(in srgb,currentColor 6%,transparent);color:inherit;border:1.5px solid color-mix(in srgb,currentColor 25%,transparent);border-radius:99px;min-height:40px;padding:4px 14px 4px 5px;font-size:14px;font-weight:600}
+.who button:hover{border-color:currentColor}
+.who b{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,currentColor 14%,transparent);font-family:"Space Grotesk",sans-serif;font-size:14px}
+.who button[aria-pressed=true]{background:var(--mi);color:var(--mf);border-color:var(--mi)}
+.who button[aria-pressed=true] b{background:var(--mf);color:var(--mi)}
+.dh{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}.dh label{margin:0}
+.wk{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600;white-space:nowrap}
+.nav{display:grid;place-items:center;background:transparent;color:var(--ink);border:1.5px solid var(--line);min-height:36px;width:36px;padding:0;border-radius:50%}
+.nav:disabled{opacity:.3;cursor:default}
+.days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.days button{display:flex;flex-direction:column;align-items:center;padding:8px 0 6px;min-height:64px;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:12px;font-weight:500}
+.days .wd{font-size:12px;color:var(--mut)}
+.days .n{font-family:"Space Grotesk",sans-serif;font-weight:700;font-size:19px;line-height:1.2}
+.days .dot{width:6px;height:6px;border-radius:50%;background:var(--gd);margin-top:3px;visibility:hidden}
+.days .has .dot{visibility:visible}
+.days .today{border-color:var(--gd);border-width:2px}
+.days button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.days button[aria-pressed=true] .wd{color:inherit;opacity:.75}
+.days button:disabled{opacity:.3;cursor:default}
+.dfoot{display:flex;align-items:center;gap:14px;margin-top:8px;font-size:14px;color:var(--mut);flex-wrap:wrap}
+.dfoot span{margin-right:auto}
+.link{background:none;border:0;color:var(--ink);min-height:32px;padding:0;font-size:14px;font-weight:600;text-decoration:underline;text-decoration-color:var(--gd);text-underline-offset:3px;text-decoration-thickness:2px}
+.cal{margin-top:10px;border:1.5px solid var(--line);border-radius:16px;padding:14px;background:var(--bg);box-shadow:0 14px 34px rgba(0,0,0,.14);max-width:340px}
+@media(prefers-reduced-motion:no-preference){.cal{animation:pop .16s ease-out}@keyframes pop{from{opacity:0;transform:translateY(-4px)}}}
+.ch{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.ch strong{font-family:"Space Grotesk",sans-serif;font-size:17px}
+.cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;text-align:center}
+.cg .h{font-size:12px;color:var(--mut);padding:4px 0}
+.cg button{aspect-ratio:1;min-height:0;padding:0;border-radius:50%;background:transparent;color:var(--ink);border:2px solid transparent;font-weight:500;font-size:15px;position:relative;display:grid;place-items:center}
+.cg button:hover:not(:disabled){background:light-dark(#f3f0e6,#1d1b15)}
+.cg .today{border-color:var(--gd)}
+.cg button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.cg .has::after{content:"";position:absolute;bottom:4px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:var(--gd)}
+.cg button:disabled{opacity:.28;cursor:default}
+.cf{display:flex;justify-content:flex-end;margin-top:6px}
+.vh{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.live{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:2px 10px;border-radius:99px;border:1px solid var(--line);color:var(--ink);white-space:nowrap;margin-left:6px}
+.live i{width:8px;height:8px;border-radius:50%;background:#9a9585}
+.live[data-s=on] i{background:#1fa463;box-shadow:0 0 0 3px rgba(31,164,99,.2)}
+.live[data-s=wait] i{background:var(--gold)}
+.setup{background:light-dark(#fff6d6,#1f1a0a);border:1px solid var(--gd);border-radius:10px;padding:10px 14px;font-size:14px;max-width:460px}
+select{width:100%;font:inherit;font-size:16px;padding:11px 12px;min-height:46px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+select:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{background:transparent;color:var(--ink);border-color:var(--line);min-height:40px;padding:6px 14px;font-weight:500}
+.chips button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.sel{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.sel select{width:auto;min-height:40px;padding:6px 10px;background:transparent;color:inherit;border-color:currentColor;font-size:15px}
+.sel label{margin:0}
+.meter{height:8px;border-radius:4px;background:var(--line);overflow:hidden;min-width:60px}
+.meter i{display:block;height:100%;background:var(--gd)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:40px}
+@media(max-width:820px){.top{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}.stats{grid-template-columns:1fr 1fr}}
+@media(prefers-reduced-motion:no-preference){.bar{transition:height .3s}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+<div class="top">
+  <section class="band">
+    <h1><svg viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6h20v12a10 10 0 0 1-20 0z" fill="#ffc629"/><path d="M14 6h6v12a10 10 0 0 0 5 8.7A10 10 0 0 1 14 18z" fill="#fff" opacity=".35"/><path d="M14 10H7v4a8 8 0 0 0 8 8M34 10h7v4a8 8 0 0 1-8 8" fill="none" stroke="#d99a00" stroke-width="3"/><path d="M21 27h6l1 8h-8z" fill="#d99a00"/><rect x="14" y="35" width="20" height="6" rx="1.5" fill="currentColor"/></svg>The winning team</h1>
+    <p class="sub"><span id="live" class="live" data-s="off" style="margin-left:0"><i></i><span>Kobler til…</span></span></p>
+    <p id="setup" class="setup" hidden>Databasen er ikke satt opp ennå, så tallene lagres bare i denne nettleseren. Fyll inn Firebase-oppsettet øverst i skriptet i <code>index.html</code>.</p>
+    <form id="f" novalidate>
+      <div>
+        <label id="pl">Selger</label>
+        <div class="chips" id="pp" role="group" aria-labelledby="pl"></div>
+      </div>
+      <div>
+        <div class="dh">
+          <label id="dl">Dato</label>
+          <span class="wk">
+            <button type="button" class="nav" id="prev" aria-label="Forrige uke"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+            <span id="wkl">Uke</span>
+            <button type="button" class="nav" id="next" aria-label="Neste uke"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+          </span>
+        </div>
+        <div class="days" id="days" role="group" aria-labelledby="dl"></div>
+        <div class="dfoot"><span id="dtxt"></span><button type="button" class="link" id="pick" aria-expanded="false" aria-controls="cal">Velg annen dato</button><button type="button" class="link" id="tday">I dag</button></div>
+        <div class="cal" id="cal" hidden></div>
+        <input id="d" type="date" class="vh" tabindex="-1" aria-hidden="true">
+      </div>
+      <div>
+        <label>Samtaletid <span class="hint">(timer og minutter)</span></label>
+        <div class="row">
+          <input id="h" type="number" min="0" max="24" inputmode="numeric" placeholder="Timer" aria-label="Timer">
+          <input id="m" type="number" min="0" max="59" inputmode="numeric" placeholder="Minutter" aria-label="Minutter">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="c">Samtaler over 5 min</label>
+          <input id="c" type="number" min="0" inputmode="numeric" placeholder="0">
+        </div>
+        <div>
+          <label for="s">Salg</label>
+          <input id="s" type="number" min="0" inputmode="numeric" placeholder="0">
+        </div>
+      </div>
+      <div class="acts">
+        <button type="submit" id="save">Legg inn</button>
+      </div>
+      <div class="msg" id="msg" role="status"></div>
+    </form>
+  </section>
+  <section class="band" aria-label="Oppsummering">
+    <p class="kick">Vis tall for</p>
+    <div class="who" id="fp" role="group" aria-label="Vis tall for"></div>
+    <div class="per" id="per">
+      <button type="button" data-p="day" aria-pressed="false">I dag</button>
+      <button type="button" data-p="week" aria-pressed="true">Denne uka</button>
+      <button type="button" data-p="month" aria-pressed="false">Denne måneden</button>
+      <button type="button" data-p="all" aria-pressed="false">Totalt</button>
+    </div>
+    <p class="kick" id="sumK">Salg</p>
+    <p class="big" id="sumBig">0</p>
+    <div class="stats" id="stats"></div>
+  </section>
+</div>
+
+<section class="band">
+  <div class="wrap">
+    <h2>Siste 14 dager</h2>
+    <div class="fig" id="fig"><svg id="chart" role="img" aria-label="Søylediagram over samtaler og salg siste 14 dager"></svg></div>
+    <div class="leg"><span><i style="background:var(--bar)"></i>Samtaler over 5 min</span><span><i style="background:var(--gd)"></i>Salg</span></div>
+  </div>
+</section>
+
+<section class="band" style="padding-top:0">
+  <div class="wrap">
+    <h2 id="lbH">Per selger</h2>
+    <div id="lb"></div>
+  </div>
+</section>
+
+
+<script type="module">
+// ===== FIREBASE-OPPSETT: lim inn verdiene fra Firebase her (se README) =====
+const CFG = {
+  apiKey: "AIzaSyCquyaHDfrCK0K_-SW19OOFS1OILYyyzWQ",
+  authDomain: "the-winning-team-644df.firebaseapp.com",
+  projectId: "the-winning-team-644df",
+  storageBucket: "the-winning-team-644df.firebasestorage.app",
+  messagingSenderId: "403716224843",
+  appId: "1:403716224843:web:cb98927c38ad63fff09ace"
+};
+// ==========================================================================
+const FB = 'https://www.gstatic.com/firebasejs/10.12.2/';
+{
+const $ = id => document.getElementById(id);
+let rows = [];
+let wk = '';
+const SELLERS = ['Chris', 'Gamachu', 'Nizar', 'Emil', 'Nathaniel', 'Oskar'];
+let F = null, db = null, mode = 'local', period = 'week', who = '', cur = '', view = '';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+const pad = n => String(n).padStart(2, '0');
+const iso = d => d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+const today = iso(new Date());
+const parse = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
+const fmtT = min => { const h = Math.floor(min / 60), m = min % 60; return h ? h + ' t ' + pad(m) + ' m' : m + ' min'; };
+const fmtD = s => parse(s).toLocaleDateString('nb-NO', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+const pct = (a, b) => b ? Math.round(a / b * 100) + ' %' : '–';
+const sort = () => rows.sort((a, b) => b.d.localeCompare(a.d) || SELLERS.indexOf(a.p) - SELLERS.indexOf(b.p));
+const mine = r => !view || r.p === view;
+const periodLabel = () => ({ day: 'i dag', week: 'denne uka', month: 'denne måneden', all: 'totalt' })[period];
+const tot = list => list.reduce((a, r) => ({ m: a.m + r.m, c: a.c + r.c, s: a.s + r.s }), { m: 0, c: 0, s: 0 });
+
+function weekStart(d) { const x = new Date(d); const w = (x.getDay() + 6) % 7; x.setDate(x.getDate() - w); return iso(x); }
+
+function inPeriod(r) {
+  if (period === 'day') return r.d === today;
+  if (period === 'week') { const ws = weekStart(new Date()); return r.d >= ws && r.d <= today; }
+  if (period === 'month') return r.d.slice(0, 7) === today.slice(0, 7);
+  return true;
+}
+
+function renderSum() {
+  const list = rows.filter(r => inPeriod(r) && mine(r));
+  const t = tot(list);
+  const n = new Set(list.map(r => r.d)).size;
+  $('sumBig').textContent = t.s;
+  $('sumK').textContent = 'Salg ' + periodLabel() + (view ? ' – ' + view : ' – alle selgere');
+  const st = [
+    ['Samtaletid', fmtT(t.m)],
+    ['Samtaler over 5 min', t.c],
+    ['Salg per samtale >5', pct(t.s, t.c)],
+    [view ? 'Dager registrert' : 'Dager med tall', n],
+    ['Snitt tid per dag', n ? fmtT(Math.round(t.m / n)) : '–'],
+    ['Snitt salg per dag', n ? (t.s / n).toLocaleString('nb-NO', { maximumFractionDigits: 1 }) : '–']
+  ];
+  $('stats').innerHTML = st.map(([l, v]) => `<div class="stat"><div class="v">${v}</div><div class="l">${l}</div></div>`).join('');
+}
+
+function renderLb() {
+  const per = SELLERS.map(p => ({ p, ...tot(rows.filter(r => r.p === p && inPeriod(r))) }));
+  const max = Math.max(1, ...per.map(x => x.s));
+  $('lbH').textContent = 'Per selger – ' + periodLabel();
+  per.sort((a, b) => b.s - a.s || b.c - a.c);
+  $('lb').innerHTML = `<div class="scroll"><table class="stack"><thead><tr><th>Selger</th><th>Salg</th><th></th><th>Samtaler &gt;5 min</th><th>Samtaletid</th><th>Salg/samtale</th></tr></thead><tbody>` +
+    per.map((x, i) => `<tr${i === 0 && x.s > 0 ? ' class="lead"' : ''}><td><span class="pod">${x.s > 0 && i < 3 ? `<b style="background:${['#ffc629', '#c9ccd1', '#d9965b'][i]}">${i + 1}</b>` : ''}<strong>${x.p}</strong></span></td><td>${x.s}</td><td><div class="meter"><i style="width:${x.s / max * 100}%"></i></div></td><td>${x.c}</td><td>${fmtT(x.m)}</td><td>${pct(x.s, x.c)}</td></tr>`).join('') +
+    '</tbody></table></div>';
+}
+
+function renderList() {
+  if (!$('list')) return;
+  sort();
+  const vis = rows.filter(mine);
+  $('listH').textContent = view ? 'Registreringer – ' + view : 'Alle registreringer';
+  if (!vis.length) { $('list').innerHTML = '<div class="empty">Ingen dager ennå. Fyll inn skjemaet over for å komme i gang.</div>'; $('foot').textContent = ''; return; }
+  $('list').innerHTML = `<div class="scroll"><table class="stack"><thead><tr><th>Dato</th><th>Selger</th><th>Samtaletid</th><th>Samtaler &gt;5 min</th><th>Salg</th><th>Salg/samtale</th><th></th></tr></thead><tbody>` +
+    vis.map(r => `<tr><td>${fmtD(r.d)}</td><td>${esc(r.p)}</td><td>${fmtT(r.m)}</td><td>${r.c}</td><td>${r.s}</td><td>${pct(r.s, r.c)}</td><td><span class="acts" style="justify-content:flex-end"><button type="button" class="ghost small" data-e="${r.d}" data-p="${esc(r.p)}">Endre</button><button type="button" class="ghost small" data-x="${r.d}" data-p="${esc(r.p)}">Slett</button></span></td></tr>`).join('') +
+    '</tbody></table></div>';
+  $('foot').textContent = mode === 'live' ? 'Live: alle som har siden åpen ser endringer med en gang.' : 'Ikke koblet til databasen – tallene lagres bare i denne nettleseren.';
+}
+
+function draw() {
+  const s = $('chart'), W = s.clientWidth, H = s.clientHeight;
+  if (!W) return;
+  const days = [];
+  for (let i = 13; i >= 0; i--) { const x = new Date(); x.setDate(x.getDate() - i); days.push(iso(x)); }
+  const by = {};
+  rows.filter(mine).forEach(r => { const b = by[r.d] || (by[r.d] = { c: 0, s: 0 }); b.c += r.c; b.s += r.s; });
+  const raw = Math.max(4, ...days.map(d => by[d] ? Math.max(by[d].c, by[d].s) : 0));
+  const step = Math.ceil(raw / 4), max = step * 4;
+  const pl = 30, pb = 26, pt = 10, cw = (W - pl) / 14, ih = H - pb - pt, narrow = W < 520;
+  const y = v => pt + ih - v / max * ih;
+  let o = '';
+  for (let v = 0; v <= max; v += step) o += `<line x1="${pl}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pl - 6}" y="${y(v) + 4}" text-anchor="end" font-size="12" fill="var(--mut)">${v}</text>`;
+  days.forEach((d, i) => {
+    const r = by[d] || { c: 0, s: 0 }, x = pl + i * cw, bw = Math.max(4, cw * .32);
+    o += `<rect class="bar" x="${x + cw / 2 - bw - 1}" y="${y(r.c)}" width="${bw}" height="${ih - (y(r.c) - pt)}" rx="2" style="fill:var(--bar)"><title>${fmtD(d)}: ${r.c} samtaler over 5 min</title></rect>`;
+    o += `<rect class="bar" x="${x + cw / 2 + 1}" y="${y(r.s)}" width="${bw}" height="${ih - (y(r.s) - pt)}" rx="2" style="fill:var(--gd)"><title>${fmtD(d)}: ${r.s} salg</title></rect>`;
+    if (!narrow || i % 2 === 1) { const dt = parse(d); o += `<text x="${x + cw / 2}" y="${H - 6}" text-anchor="middle" font-size="12" fill="${d === today ? 'var(--ink)' : 'var(--mut)'}" font-weight="${d === today ? 600 : 400}">${dt.getDate()}.${narrow ? '' : (dt.getMonth() + 1) + '.'}</text>`; }
+  });
+  s.innerHTML = o;
+}
+
+function render() { renderSum(); renderLb(); renderList(); draw(); renderDays(); }
+
+const wkNo = s => { const d = parse(s); d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7)); const j = new Date(d.getFullYear(), 0, 4); return 1 + Math.round(((d - j) / 864e5 - 3 + ((j.getDay() + 6) % 7)) / 7); };
+function renderDays() {
+  const sel = $('d').value || today;
+  if (!wk) wk = weekStart(parse(sel));
+  const s = parse(wk), list = [];
+  for (let i = 0; i < 7; i++) { const x = new Date(s); x.setDate(s.getDate() + i); list.push(iso(x)); }
+  const has = new Set(rows.filter(r => !cur || r.p === cur).map(r => r.d));
+  $('days').innerHTML = list.map(d => { const x = parse(d); return `<button type="button" data-d="${d}" aria-pressed="${d === sel}" class="${d === today ? 'today ' : ''}${has.has(d) ? 'has' : ''}" ${d > today ? 'disabled' : ''} aria-label="${fmtD(d)}"><span class="wd">${x.toLocaleDateString('nb-NO', { weekday: 'short' }).replace('.', '')}</span><span class="n">${x.getDate()}</span><span class="dot"></span></button>`; }).join('');
+  const a = parse(list[0]), b = parse(list[6]);
+  $('wkl').textContent = 'Uke ' + wkNo(wk);
+  $('next').disabled = list[6] >= today;
+  $('dtxt').textContent = sel === today ? 'I dag' : fmtD(sel);
+  $('tday').hidden = sel === today;
+}
+let calM = '';
+const arrow = d => `<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function renderCal() {
+  const sel = $('d').value || today, [y, m] = calM.split('-').map(Number), first = new Date(y, m - 1, 1);
+  const off = (first.getDay() + 6) % 7, dim = new Date(y, m, 0).getDate();
+  const has = new Set(rows.filter(r => !cur || r.p === cur).map(r => r.d));
+  const name = first.toLocaleDateString('nb-NO', { month: 'long', year: 'numeric' });
+  let g = ['man', 'tir', 'ons', 'tor', 'fre', 'lør', 'søn'].map(x => `<span class="h">${x}</span>`).join('') + '<span></span>'.repeat(off);
+  for (let i = 1; i <= dim; i++) { const d = calM + '-' + pad(i); g += `<button type="button" data-cd="${d}" aria-pressed="${d === sel}" class="${d === today ? 'today ' : ''}${has.has(d) ? 'has' : ''}" ${d > today ? 'disabled' : ''} aria-label="${fmtD(d)}">${i}</button>`; }
+  $('cal').innerHTML = `<div class="ch"><button type="button" class="nav" data-m="-1" aria-label="Forrige måned">${arrow('M10 3 5 8l5 5')}</button><strong>${name[0].toUpperCase() + name.slice(1)}</strong><button type="button" class="nav" data-m="1" aria-label="Neste måned" ${calM >= today.slice(0, 7) ? 'disabled' : ''}>${arrow('m6 3 5 5-5 5')}</button></div><div class="cg">${g}</div><div class="cf"><button type="button" class="link" data-cd="${today}">Gå til i dag</button></div>`;
+}
+function calOpen(open) { $('cal').hidden = !open; $('pick').setAttribute('aria-expanded', open); if (open) { calM = ($('d').value || today).slice(0, 7); renderCal(); } }
+
+function pickDay(d) { $('d').value = d; wk = weekStart(parse(d)); fill(d); renderSum(); renderLb(); }
+
+function fill(d, p) {
+  if (p !== undefined) cur = p;
+  for (const b of $('pp').children) b.setAttribute('aria-pressed', b.dataset.n === cur);
+  const r = cur ? rows.find(x => x.d === d && x.p === cur) : null;
+  $('d').value = d;
+  $('h').value = r ? Math.floor(r.m / 60) || '' : '';
+  $('m').value = r ? (r.m % 60) || '' : '';
+  $('c').value = r ? r.c : '';
+  $('s').value = r ? r.s : '';
+  if ($('days')) renderDays();
+  $('save').textContent = r ? 'Oppdater ' + cur : cur ? 'Legg inn for ' + cur : 'Legg inn';
+}
+
+const key = r => r.d + '_' + r.p;
+const ERR = {
+  'permission-denied': 'Firebase avviste lagringen. Gå til Firestore → Rules i Firebase, lim inn reglene fra firestore.rules og trykk Publish.',
+  'not-found': 'Fant ikke databasen. Sjekk at Firestore Database er opprettet i Firebase-prosjektet.',
+  'failed-precondition': 'Firestore Database er ikke opprettet ennå i Firebase-prosjektet.',
+  'unavailable': 'Får ikke kontakt med Firebase. Sjekk nettet og prøv igjen.',
+  'invalid-argument': 'Firebase-oppsettet ser ut til å være feil. Sjekk verdiene under FIREBASE-OPPSETT i index.html.'
+};
+function err(e) { const c = (e && e.code || '').replace('firestore/', ''); say((ERR[c] || 'Noe gikk galt med databasen') + ' (' + (c || (e && e.message) || 'ukjent') + ')', true); }
+function say(t, bad) { const m = $('msg'); m.textContent = t; m.classList.toggle('err', !!bad); }
+let queue = [], failed = false;
+async function saveRec(rec) {
+  saveLocal();
+  if (mode !== 'live') { if (CFG.projectId && !failed) queue.push(() => saveRec(rec)); return; }
+  try { await F.setDoc(F.doc(db, 'registreringer', key(rec)), { ...rec, t: Date.now() }); say('Lagt inn for ' + rec.p + ', ' + fmtD(rec.d) + '. Alle ser det nå.'); }
+  catch (e) { err(e); }
+}
+async function delRec(d, p) {
+  saveLocal();
+  if (mode !== 'live') { if (CFG.projectId && !failed) queue.push(() => delRec(d, p)); return; }
+  try { await F.deleteDoc(F.doc(db, 'registreringer', d + '_' + p)); }
+  catch (e) { err(e); }
+}
+function setStatus(s, t) { const el = $('live'); el.dataset.s = s; el.lastChild.textContent = t; }
+function saveLocal() { try { localStorage.setItem('samtalelogg', JSON.stringify(rows)); } catch (e) {} }
+
+$('f').addEventListener('submit', e => {
+  e.preventDefault();
+  const d = $('d').value;
+  if (!cur) { say('Velg selger først.', true); $('pp').firstElementChild.focus(); return; }
+  if (!d) { say('Velg en dato.', true); $('d').focus(); return; }
+  const num = id => Math.max(0, parseInt($(id).value, 10) || 0);
+  const m = num('h') * 60 + Math.min(59, num('m'));
+  const rec = { d, p: cur, m, c: num('c'), s: num('s') };
+  const i = rows.findIndex(r => r.d === d && r.p === cur);
+  if (i >= 0) rows[i] = rec; else rows.push(rec);
+  say((i >= 0 ? 'Oppdatert ' : 'Lagt inn ') + cur + ', ' + fmtD(d) + '.');
+  render(); fill(d); saveRec(rec);
+});
+$('d').addEventListener('change', () => { if ($('d').value) pickDay($('d').value > today ? today : $('d').value); });
+$('days').addEventListener('click', e => { const b = e.target.closest('button'); if (b && !b.disabled) pickDay(b.dataset.d); });
+const shift = n => { const x = parse(wk); x.setDate(x.getDate() + n * 7); wk = iso(x); renderDays(); };
+$('prev').addEventListener('click', () => shift(-1));
+$('next').addEventListener('click', () => shift(1));
+$('tday').addEventListener('click', () => pickDay(today));
+$('pick').addEventListener('click', () => calOpen($('cal').hidden));
+$('cal').addEventListener('click', e => {
+  e.stopPropagation();
+  const b = e.target.closest('button'); if (!b || b.disabled) return;
+  if (b.dataset.m) { const [y, m] = calM.split('-').map(Number); const x = new Date(y, m - 1 + Number(b.dataset.m), 1); calM = x.getFullYear() + '-' + pad(x.getMonth() + 1); renderCal(); }
+  if (b.dataset.cd) { pickDay(b.dataset.cd); calOpen(false); }
+});
+document.addEventListener('click', e => { if (!$('cal').hidden && !e.target.closest('#cal,#pick')) calOpen(false); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('cal').hidden) { calOpen(false); $('pick').focus(); } });
+$('per').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  period = b.dataset.p;
+  for (const x of $('per').children) x.setAttribute('aria-pressed', x === b);
+  renderSum(); renderLb();
+});
+$('list')?.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.e) { fill(b.dataset.e, b.dataset.p); window.scrollTo({ top: 0, behavior: 'smooth' }); $('h').focus(); }
+  if (b.dataset.x) {
+    if (b.dataset.sure) { rows = rows.filter(r => !(r.d === b.dataset.x && r.p === b.dataset.p)); say('Slettet.'); render(); fill($('d').value); delRec(b.dataset.x, b.dataset.p); }
+    else { b.dataset.sure = '1'; b.textContent = 'Bekreft'; setTimeout(() => { if (b.isConnected) { delete b.dataset.sure; b.textContent = 'Slett'; } }, 3000); }
+  }
+});
+$('copy')?.addEventListener('click', async () => {
+  const csv = ['Dato;Selger;Samtaletid (min);Samtaler over 5 min;Salg', ...sort().filter(mine).map(r => [r.d, r.p, r.m, r.c, r.s].join(';'))].join('\n');
+  try { await navigator.clipboard.writeText(csv); $('copy').textContent = 'Kopiert!'; }
+  catch (e) { $('copy').textContent = 'Kunne ikke kopiere'; }
+  setTimeout(() => $('copy').textContent = 'Kopier som CSV', 2000);
+});
+
+rows.forEach(r => { if (!r.p) r.p = 'Ukjent'; });
+$('pp').innerHTML = SELLERS.map(n => `<button type="button" data-n="${n}" aria-pressed="false">${n}</button>`).join('');
+$('fp').innerHTML = `<button type="button" data-v="" aria-pressed="true" class="all"><b><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><circle cx="5.5" cy="5.5" r="2.3" fill="currentColor"/><circle cx="11" cy="6.5" r="1.9" fill="currentColor"/><path d="M1.5 13c0-2.4 1.8-3.8 4-3.8s4 1.4 4 3.8zM9.6 13c0-1.6-.5-2.6-1.2-3.3.8-.5 1.6-.6 2.6-.6 1.9 0 3.2 1.2 3.2 3.9z" fill="currentColor"/></svg></b>Hele laget</button>` + SELLERS.map(n => `<button type="button" data-v="${n}" aria-pressed="false"><b>${n[0]}</b>${n}</button>`).join('');
+$('pp').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; fill($('d').value || today, b.dataset.n === cur ? '' : b.dataset.n); say(''); });
+$('fp').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; view = b.dataset.v; for (const x of $('fp').children) x.setAttribute('aria-pressed', x === b); render(); });
+$('d').value = today; fill(today);
+new ResizeObserver(draw).observe($('fig'));
+render();
+
+function loadLocal() { try { const l = JSON.parse(localStorage.getItem('samtalelogg') || '[]'); if (Array.isArray(l)) rows = l; } catch (e) {} rows.forEach(r => { if (!r.p) r.p = 'Ukjent'; }); }
+function offline() { failed = true; queue = []; mode = 'local'; setStatus('off', 'Frakoblet'); loadLocal(); render(); }
+loadLocal(); render();
+if (CFG.projectId) {
+  setStatus('wait', 'Kobler til…');
+  Promise.all([import(FB + 'firebase-app.js'), import(FB + 'firebase-firestore.js')]).then(([A, S]) => {
+    F = S; db = S.getFirestore(A.initializeApp(CFG));
+    S.onSnapshot(S.collection(db, 'registreringer'), snap => {
+      rows = snap.docs.map(x => { const v = x.data(); return { d: v.d, p: v.p, m: v.m | 0, c: v.c | 0, s: v.s | 0 }; });
+      const first = mode !== 'live';
+      mode = 'live'; setStatus('on', 'Live'); clearTimeout(slow);
+      if (first) { const q = queue; queue = []; q.forEach(f => f()); }
+      render(); if (first) fill($('d').value);
+    }, e => { offline(); err(e); });
+  }).catch(e => { offline(); say('Klarte ikke å laste Firebase. Sjekk nettet. (' + (e && e.message || '') + ')', true); });
+  const slow = setTimeout(() => { if (mode !== 'live') say('Får ikke kontakt med databasen ennå. Sjekk at Firestore Database er opprettet og at Firebase-oppsettet i index.html er riktig.', true); }, 8000);
+} else {
+  setStatus('off', 'Ikke satt opp');
+  $('setup').hidden = false;
+  render(); fill(today);
+}
+}
+</script>
+</body>
+</html>
